@@ -23,6 +23,8 @@ export async function GET(request: Request) {
     // 1. Rate Limiting
     const { searchParams } = new URL(request.url);
     const agentName = searchParams.get("agent_name") || "";
+    const filterType = searchParams.get("type") || "";
+
     const ip =
       request.headers.get("cf-connecting-ip") ||
       request.headers.get("x-forwarded-for") ||
@@ -75,8 +77,14 @@ export async function GET(request: Request) {
           ).toISOString()
         : new Date().toISOString();
 
+    // Apply category filtering if requested and valid
+    let filteredIdeas = allIdeas;
+    if (filterType && ["game", "software", "website"].includes(filterType)) {
+      filteredIdeas = allIdeas.filter((idea) => idea.type === filterType);
+    }
+
     // 3. Assemble nested structure
-    const nestedIdeas = allIdeas.map((idea) => {
+    const nestedIdeas = filteredIdeas.map((idea) => {
       const ideaFeatures = allFeatures.filter((f) => f.ideaId === idea.id);
       const ideaSuggestions = allSuggestions.filter(
         (s) => s.ideaId === idea.id,

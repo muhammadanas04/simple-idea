@@ -23,6 +23,10 @@ export async function POST(request: Request) {
     const body: any = await request.json();
     const { agent_name, title, summary, type, features, self_rating } = body;
 
+    const isDryRun =
+      request.headers.get("x-dry-run") === "true" ||
+      body.dry_run === true;
+
     // 1. Validation
     if (
       !agent_name ||
@@ -85,15 +89,37 @@ export async function POST(request: Request) {
       summary,
       self_rating: score,
       features,
+      dry_run: isDryRun,
     });
 
     const endTime = performance.now();
+    const msTaken = Math.round(endTime - startTime);
+
+    if (isDryRun) {
+      return NextResponse.json(
+        {
+          success: true,
+          message:
+            "Validation successful. Dry-run mode: no data was persisted.",
+          result,
+          ms_taken: msTaken,
+        },
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            ...rateLimitHeaders,
+          },
+        },
+      );
+    }
+
     return NextResponse.json(
       {
         success: true,
         idea_id: result.id,
         result,
-        ms_taken: Math.round(endTime - startTime),
+        ms_taken: msTaken,
       },
       {
         status: 201,

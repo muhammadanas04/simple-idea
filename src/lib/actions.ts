@@ -9,6 +9,7 @@ export async function proposeIdea(db: any, agentName: string, payload: any) {
     summary,
     self_rating,
     features: initialFeatures,
+    dry_run,
   } = payload;
 
   if (!type || !["game", "software", "website"].includes(type)) {
@@ -40,7 +41,9 @@ export async function proposeIdea(db: any, agentName: string, payload: any) {
     createdAt: now,
   };
 
-  await db.insert(ideas).values(newIdea).run();
+  if (!dry_run) {
+    await db.insert(ideas).values(newIdea).run();
+  }
 
   const addedFeatures = [];
   if (Array.isArray(initialFeatures)) {
@@ -56,7 +59,9 @@ export async function proposeIdea(db: any, agentName: string, payload: any) {
           ratingCount: 0,
           createdAt: now,
         };
-        await db.insert(features).values(newFeature).run();
+        if (!dry_run) {
+          await db.insert(features).values(newFeature).run();
+        }
         addedFeatures.push(newFeature);
       }
     }
@@ -69,7 +74,7 @@ export async function proposeIdea(db: any, agentName: string, payload: any) {
 }
 
 export async function rateEntity(db: any, agentName: string, payload: any) {
-  const { target_type, target_id, score, idea_id } = payload;
+  const { target_type, target_id, score, idea_id, dry_run } = payload;
 
   if (
     !target_type ||
@@ -129,36 +134,38 @@ export async function rateEntity(db: any, agentName: string, payload: any) {
     }
   }
 
-  // Delete existing rating if any
-  await db
-    .delete(ratings)
-    .where(
-      and(
-        eq(ratings.targetType, target_type),
-        eq(ratings.targetId, target_id),
-        eq(ratings.ratedBy, agentName),
-      ),
-    )
-    .run();
+  if (!dry_run) {
+    // Delete existing rating if any
+    await db
+      .delete(ratings)
+      .where(
+        and(
+          eq(ratings.targetType, target_type),
+          eq(ratings.targetId, target_id),
+          eq(ratings.ratedBy, agentName),
+        ),
+      )
+      .run();
 
-  // Insert new rating
-  await db
-    .insert(ratings)
-    .values({
-      id: crypto.randomUUID(),
-      targetType: target_type,
-      targetId: target_id,
-      ideaId: idea_id,
-      ratedBy: agentName,
-      score: numericScore,
-      createdAt: new Date().toISOString(),
-    })
-    .run();
+    // Insert new rating
+    await db
+      .insert(ratings)
+      .values({
+        id: crypto.randomUUID(),
+        targetType: target_type,
+        targetId: target_id,
+        ideaId: idea_id,
+        ratedBy: agentName,
+        score: numericScore,
+        createdAt: new Date().toISOString(),
+      })
+      .run();
 
-  // Recompute
-  await recomputeRating(db, target_type, target_id);
+    // Recompute
+    await recomputeRating(db, target_type, target_id);
+  }
 
-  // Return the updated target
+  // Return the target
   if (target_type === "idea") {
     return await db.select().from(ideas).where(eq(ideas.id, target_id)).get();
   } else if (target_type === "feature") {
@@ -177,7 +184,7 @@ export async function rateEntity(db: any, agentName: string, payload: any) {
 }
 
 export async function addSuggestion(db: any, agentName: string, payload: any) {
-  const { idea_id, content } = payload;
+  const { idea_id, content, dry_run } = payload;
 
   if (!idea_id) {
     throw new Error("idea_id is required.");
@@ -207,12 +214,14 @@ export async function addSuggestion(db: any, agentName: string, payload: any) {
     createdAt: new Date().toISOString(),
   };
 
-  await db.insert(suggestions).values(newSuggestion).run();
+  if (!dry_run) {
+    await db.insert(suggestions).values(newSuggestion).run();
+  }
   return newSuggestion;
 }
 
 export async function addFeature(db: any, agentName: string, payload: any) {
-  const { idea_id, description } = payload;
+  const { idea_id, description, dry_run } = payload;
 
   if (!idea_id) {
     throw new Error("idea_id is required.");
@@ -246,6 +255,8 @@ export async function addFeature(db: any, agentName: string, payload: any) {
     createdAt: new Date().toISOString(),
   };
 
-  await db.insert(features).values(newFeature).run();
+  if (!dry_run) {
+    await db.insert(features).values(newFeature).run();
+  }
   return newFeature;
 }

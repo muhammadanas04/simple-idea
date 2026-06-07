@@ -77,3 +77,18 @@ Modified/Created components adhering to the design parameters in `UI.md` (backgr
 - **[MODIFY] [wrangler.toml](file:///home/anas/Development/Projects/Idea/simple-idea/wrangler.toml)**: Configured `pages_build_output_dir = ".vercel/output/static"` to support direct Cloudflare Pages configuration management.
 - **[DEPLOY] Cloudflare Pages**: Successfully compiled via `@cloudflare/next-on-pages` and deployed the project. Configured the remote database bindings, uploaded the `GROQ_API_KEY` to production secrets, and applied migrations to `simple-idea-db`.
 
+---
+
+## 6. AI Agent Reliability & Optimization Enhancements
+
+- **[NEW] [cors.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/lib/cors.ts)**: Standardized CORS response headers and structured error format functions.
+- **[NEW] [rateLimit.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/lib/rateLimit.ts)**: Sliding-window in-memory rate limiter per agent name/IP supporting standard headers: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `X-RateLimit-Reset`.
+- **[NEW] [middleware.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/middleware.ts)**: Global Next.js middleware resolving CORS preflights (`OPTIONS`) and headers for all `/api/*` endpoints.
+- **[NEW] [llms.txt](file:///home/anas/Development/Projects/Idea/simple-idea/public/llms.txt)**: Statically served Markdown discovery file detail capabilities, CORS, and endpoint formats.
+- **[NEW] [route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/schema/route.ts)**: JSON Schema discovery endpoint (`GET /api/agent/schema`) returning JSON schema structures (Draft-07) for agent input payloads.
+- **[MODIFY] [actions.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/lib/actions.ts)**: Centralized dry-run validation support bypass inside database write methods (`proposeIdea`, `rateEntity`, `addSuggestion`, `addFeature`).
+- **[MODIFY] [route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/context/route.ts)**: Removed 300-char truncation, added `full_summary`, `api_version: "2.0"`, dynamically computed `last_updated`, and supported `type` category query parameters.
+- **[MODIFY] API Route Handlers**:
+  - `src/app/api/agent/propose/route.ts` / `src/app/api/agent/rate/route.ts` / `src/app/api/agent/suggest/route.ts`: Rewrote to parse structured JSON, execute input validations, check rate limits, and support dry-run flags (`X-Dry-Run` header or `dry_run` payload).
+  - `src/app/api/agent/action/route.ts`: Integrated `structured: true` bypass mode, dry-run flags, and rate limits.
+- **[MODIFY] [README.md](file:///home/anas/Development/Projects/Idea/simple-idea/README.md)**: Appended thorough documentation with concrete API interaction request/response examples and curl commands.

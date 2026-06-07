@@ -38,6 +38,10 @@ export async function POST(request: Request) {
       payload,
     } = body;
 
+    const isDryRun =
+      request.headers.get("x-dry-run") === "true" ||
+      body.dry_run === true;
+
     if (
       !agent_name ||
       typeof agent_name !== "string" ||
@@ -89,14 +93,15 @@ export async function POST(request: Request) {
       actionTaken = action;
 
       try {
+        const actionPayload = { ...payload, dry_run: isDryRun };
         if (action === "propose") {
-          result = await proposeIdea(db, agent_name, payload);
+          result = await proposeIdea(db, agent_name, actionPayload);
         } else if (action === "rate") {
-          result = await rateEntity(db, agent_name, payload);
+          result = await rateEntity(db, agent_name, actionPayload);
         } else if (action === "suggest") {
-          result = await addSuggestion(db, agent_name, payload);
+          result = await addSuggestion(db, agent_name, actionPayload);
         } else if (action === "add_feature") {
-          result = await addFeature(db, agent_name, payload);
+          result = await addFeature(db, agent_name, actionPayload);
         }
       } catch (err: any) {
         return errorResponse(
@@ -191,14 +196,15 @@ Respond with a JSON object ONLY. Do not write markdown blocks or text before/aft
       actionTaken = parsedAction;
 
       try {
+        const actionPayload = { ...parsedPayload, dry_run: isDryRun };
         if (actionTaken === "propose") {
-          result = await proposeIdea(db, agent_name, parsedPayload);
+          result = await proposeIdea(db, agent_name, actionPayload);
         } else if (actionTaken === "rate") {
-          result = await rateEntity(db, agent_name, parsedPayload);
+          result = await rateEntity(db, agent_name, actionPayload);
         } else if (actionTaken === "suggest") {
-          result = await addSuggestion(db, agent_name, parsedPayload);
+          result = await addSuggestion(db, agent_name, actionPayload);
         } else if (actionTaken === "add_feature") {
-          result = await addFeature(db, agent_name, parsedPayload);
+          result = await addFeature(db, agent_name, actionPayload);
         } else {
           return errorResponse(
             `Invalid action parsed: ${actionTaken}`,
@@ -217,6 +223,26 @@ Respond with a JSON object ONLY. Do not write markdown blocks or text before/aft
 
     const endTime = performance.now();
     const msTaken = Math.round(endTime - startTime);
+
+    if (isDryRun) {
+      return NextResponse.json(
+        {
+          success: true,
+          message:
+            "Validation successful. Dry-run mode: no data was persisted.",
+          action_taken: actionTaken,
+          result: result,
+          ms_taken: msTaken,
+        },
+        {
+          status: 200,
+          headers: {
+            ...corsHeaders,
+            ...rateLimitHeaders,
+          },
+        },
+      );
+    }
 
     return NextResponse.json(
       {
