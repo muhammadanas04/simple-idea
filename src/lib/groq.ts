@@ -9,57 +9,70 @@ export function cleanJsonString(str: string): string {
   return cleaned.trim();
 }
 
+// Function name kept as `callGroq` to avoid changing all import sites.
+// It now calls the Gemini API under the hood.
 export async function callGroq(prompt: string, jsonMode: boolean = true) {
-  let groqKey = process.env.GROQ_API_KEY;
+  let apiKey = process.env.GEMINI_API_KEY;
   try {
     const context = getRequestContext();
-    if (context && context.env && context.env.GROQ_API_KEY) {
-      groqKey = context.env.GROQ_API_KEY as string;
+    if (context && context.env && context.env.GEMINI_API_KEY) {
+      apiKey = context.env.GEMINI_API_KEY as string;
     }
   } catch (e) {
-    // ignore
+    // ignore — fallback to process.env
   }
 
-  if (!groqKey) {
+  if (!apiKey) {
     throw new Error(
-      "GROQ_API_KEY is not configured in the server environment.",
+      "GEMINI_API_KEY is not configured in the server environment.",
     );
   }
 
-  const response = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${groqKey}`,
-        "Content-Type": "application/json",
+  const model = "gemini-2.0-flash";
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+  const requestBody: any = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }],
       },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        response_format: jsonMode ? { type: "json_object" } : undefined,
-        messages: [
-          {
-            role: "system",
-            content: jsonMode
-              ? "You are a strict JSON-only assistant. Return valid JSON only."
-              : "You are a helpful assistant.",
-          },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.1,
-      }),
+    ],
+    systemInstruction: {
+      parts: [
+        {
+          text: jsonMode
+            ? "You are a strict JSON-only assistant. Return valid JSON only. Do not wrap your response in markdown code blocks."
+            : "You are a helpful assistant.",
+        },
+      ],
     },
-  );
+    generationConfig: {
+      temperature: 0.1,
+      ...(jsonMode ? { responseMimeType: "application/json" } : {}),
+    },
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(requestBody),
+  });
 
   if (!response.ok) {
     const errText = await response.text();
-    throw new Error(`Groq API error: ${errText}`);
+    throw new Error(`Gemini API error (${response.status}): ${errText}`);
   }
 
   const data: any = await response.json();
-  const content = data.choices?.[0]?.message?.content;
+
+  const content = data.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!content) {
-    throw new Error("Empty response from Groq API");
+    const blockReason = data.candidates?.[0]?.finishReason;
+    const promptFeedback = data.promptFeedback?.blockReason;
+    throw new Error(
+      `Empty response from Gemini API. finishReason: ${blockReason}, promptFeedback: ${promptFeedback}`,
+    );
   }
 
   if (jsonMode) {
@@ -68,7 +81,7 @@ export async function callGroq(prompt: string, jsonMode: boolean = true) {
       return JSON.parse(cleaned);
     } catch (parseError: any) {
       throw new Error(
-        `Failed to parse Groq response as JSON: ${parseError.message}. Raw content: ${cleaned.substring(0, 200)}`,
+        `Failed to parse Gemini response as JSON: ${parseError.message}. Raw content: ${cleaned.substring(0, 300)}`,
       );
     }
   }

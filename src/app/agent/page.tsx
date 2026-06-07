@@ -83,7 +83,13 @@ export default function AgentPanel() {
           intent: intentText.trim(),
         }),
       });
-      const data = (await res.json()) as any;
+      const text = await res.text();
+      let data: any;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        data = { success: false, error: `Server returned non-JSON response (HTTP ${res.status}): ${text.substring(0, 300)}` };
+      }
       setNlResult(data);
       fetchIdeas();
     } catch (err: any) {
