@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+@theme {
+  --color-lavender-bg: #e8eaf2;
+  --color-accent-violet: #6c63ff;
+  --color-accent-light: #ede9fe;
+  --color-navy-dark: #1a1a2e;
+  --color-navy-text: #2d2d4e;
+  --color-muted-text: #8888aa;
+
+  --shadow-soft: 0 8px 30px rgba(26, 26, 46, 0.04);
+  --shadow-hover: 0 12px 40px rgba(26, 26, 46, 0.08);
+}
+
+:root {
+  --background: #e8eaf2;
+  --foreground: #2d2d4e;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+/* Custom styling for native details/summary animation or styling */
+details > summary {
+  list-style: none;
+  cursor: pointer;
+}
+details > summary::-webkit-details-marker {
+  display: none;
+}

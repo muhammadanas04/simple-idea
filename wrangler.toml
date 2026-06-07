@@ -1,0 +1,10 @@
+name = "simple-idea"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "simple-idea-db"
+database_id = "5c41af88-833f-494a-bcf7-2607024fa441"
+migrations_dir = "drizzle/migrations"
