@@ -1,3 +1,12 @@
+export function cleanJsonString(str: string): string {
+  let cleaned = str.trim();
+  if (cleaned.startsWith("```")) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*/i, "");
+    cleaned = cleaned.replace(/\s*```$/, "");
+  }
+  return cleaned.trim();
+}
+
 export async function callGroq(prompt: string, jsonMode: boolean = true) {
   const groqKey = process.env.GROQ_API_KEY;
   if (!groqKey) {
@@ -42,5 +51,5 @@ export async function callGroq(prompt: string, jsonMode: boolean = true) {
     throw new Error("Empty response from Groq API");
   }
 
-  return jsonMode ? JSON.parse(content) : content;
+  return jsonMode ? JSON.parse(cleanJsonString(content)) : content;
 }

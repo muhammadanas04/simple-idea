@@ -8,6 +8,7 @@ import {
   proposeIdea,
   rateEntity,
 } from "@/lib/actions";
+import { callGroq } from "@/lib/groq";
 
 export const runtime = "edge";
 
@@ -103,48 +104,7 @@ Respond with a JSON object ONLY. Do not write markdown blocks or text before/aft
 }
 `;
 
-    const groqResponse = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${groqKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "llama-3.3-70b-specdec",
-          response_format: { type: "json_object" },
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a strict JSON-only API router. Output valid JSON only.",
-            },
-            { role: "user", content: prompt },
-          ],
-          temperature: 0.1,
-        }),
-      },
-    );
-
-    if (!groqResponse.ok) {
-      const errText = await groqResponse.text();
-      return NextResponse.json(
-        { success: false, error: `Groq API error: ${errText}` },
-        { status: 502 },
-      );
-    }
-
-    const groqData: any = await groqResponse.json();
-    const parsedText = groqData.choices?.[0]?.message?.content;
-    if (!parsedText) {
-      return NextResponse.json(
-        { success: false, error: "Empty response from intent parser" },
-        { status: 500 },
-      );
-    }
-
-    const decision = JSON.parse(parsedText);
+    const decision = await callGroq(prompt, true);
 
     if (decision.unclear) {
       return NextResponse.json({
