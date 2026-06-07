@@ -3,8 +3,16 @@ import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { features, ratings } from "@/db/schema";
 import { recomputeRating } from "@/lib/ratings";
+import { corsHeaders } from "@/lib/cors";
 
 export const runtime = "edge";
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
 
 type RouteContext = {
   params: Promise<{ id: string; fid: string }>;

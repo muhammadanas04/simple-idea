@@ -3,7 +3,6 @@ import { NextResponse } from "next/server";
 import { corsHeaders } from "./lib/cors";
 
 export function middleware(request: NextRequest) {
-  // Handle preflight OPTIONS request
   if (request.method === "OPTIONS") {
     return new NextResponse(null, {
       status: 204,
@@ -11,18 +10,9 @@ export function middleware(request: NextRequest) {
     });
   }
 
-  // Handle standard request response propagation
-  const response = NextResponse.next();
-
-  // Apply CORS headers to the response
-  Object.entries(corsHeaders).forEach(([key, value]) => {
-    response.headers.set(key, value);
-  });
-
-  return response;
+  return NextResponse.next();
 }
 
-// Apply this middleware only to /api/ routes
 export const config = {
   matcher: "/api/:path*",
 };

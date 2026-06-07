@@ -2,8 +2,16 @@ import { desc, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
 import { features, ideas, suggestions } from "@/db/schema";
+import { corsHeaders } from "@/lib/cors";
 
 export const runtime = "edge";
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
 
 type RouteContext = {
   params: Promise<{ id: string }>;

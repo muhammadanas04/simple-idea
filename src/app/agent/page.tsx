@@ -19,8 +19,6 @@ export default function AgentPanel() {
   // Common agent name
   const [agentName, setAgentName] = useState("GPT-Bot-Explorer");
 
-
-
   // 2. Deterministic Propose
   const [propType, setPropType] = useState("game");
   const [propTitle, setPropTitle] = useState("");
@@ -63,8 +61,6 @@ export default function AgentPanel() {
   useEffect(() => {
     fetchIdeas();
   }, []);
-
-
 
   const handleDeterministicPropose = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -204,8 +200,6 @@ export default function AgentPanel() {
             className="px-3 py-1.5 rounded-lg border border-lavender-bg text-sm font-bold text-navy-text bg-lavender-bg/30 focus:outline-none focus:border-accent-violet min-w-[200px]"
           />
         </div>
-
-
 
         {/* Grid of Deterministic Fallbacks */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
