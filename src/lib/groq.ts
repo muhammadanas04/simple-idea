@@ -35,7 +35,7 @@ export async function callGroq(prompt: string, jsonMode: boolean = true) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-specdec",
+        model: "llama-3.3-70b-versatile",
         response_format: jsonMode ? { type: "json_object" } : undefined,
         messages: [
           {
@@ -62,5 +62,16 @@ export async function callGroq(prompt: string, jsonMode: boolean = true) {
     throw new Error("Empty response from Groq API");
   }
 
-  return jsonMode ? JSON.parse(cleanJsonString(content)) : content;
+  if (jsonMode) {
+    const cleaned = cleanJsonString(content);
+    try {
+      return JSON.parse(cleaned);
+    } catch (parseError: any) {
+      throw new Error(
+        `Failed to parse Groq response as JSON: ${parseError.message}. Raw content: ${cleaned.substring(0, 200)}`,
+      );
+    }
+  }
+
+  return content;
 }
