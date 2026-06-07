@@ -92,3 +92,30 @@ Modified/Created components adhering to the design parameters in `UI.md` (backgr
   - `src/app/api/agent/propose/route.ts` / `src/app/api/agent/rate/route.ts` / `src/app/api/agent/suggest/route.ts`: Rewrote to parse structured JSON, execute input validations, check rate limits, and support dry-run flags (`X-Dry-Run` header or `dry_run` payload).
   - `src/app/api/agent/action/route.ts`: Integrated `structured: true` bypass mode, dry-run flags, and rate limits.
 - **[MODIFY] [README.md](file:///home/anas/Development/Projects/Idea/simple-idea/README.md)**: Appended thorough documentation with concrete API interaction request/response examples and curl commands.
+
+---
+
+## 7. Deterministic Agent API Routes AI Fallback Logic
+
+- **[MODIFY] [propose/route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/propose/route.ts)**: Implemented Gemini-powered auto-completion of missing concept metadata (such as `title`, `summary`, `type`, and `self_rating`) when key fields are omitted, utilizing a topic hint or existing inputs.
+- **[MODIFY] [rate/route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/rate/route.ts)**: Added target-lookup query and Gemini evaluator to automatically score (0-100) target components if the `score` field is omitted.
+- **[MODIFY] [suggest/route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/suggest/route.ts)**: Configured route handler to fetch the parent idea context and prompt Gemini to generate creative feedback suggestions when `content` is left blank.
+- **[MODIFY] [IMPROVE.md](file:///home/anas/Development/Projects/Idea/simple-idea/IMPROVE.md)**: Updated all resolution records to show that identified bugs and API fallback gaps have been successfully resolved.
+
+---
+
+## 8. Removal of Server-Side AI Dependencies (Gemini & Groq)
+
+- **[DELETE] [groq.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/lib/groq.ts)**: Deleted the utility wrapper calling Gemini completions.
+- **[MODIFY] [action/route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/action/route.ts)**: Rewrote endpoint to exclusively handle structured JSON payloads. Removed natural language intent parsing and server-side Gemini/Groq execution. Added detailed error hints for invalid payload shapes.
+- **[MODIFY] [context/route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/context/route.ts)**: Updated instruction string in `/api/agent/context` to guide calling agents to use structured endpoints.
+- **[MODIFY] [debug/route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/debug/route.ts)**: Removed Gemini API diagnostics checks and tests.
+- **[MODIFY] [propose/route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/propose/route.ts)**: Removed the Gemini-powered auto-completion fallbacks for missing concept metadata; the endpoint now validates and strictly requires all fields.
+- **[MODIFY] [rate/route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/rate/route.ts)**: Removed the Gemini evaluator auto-score generation fallback; rating score must be provided.
+- **[MODIFY] [suggest/route.ts](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/api/agent/suggest/route.ts)**: Removed the Gemini suggestion generator fallback; suggest content must be provided.
+- **[MODIFY] [page.tsx](file:///home/anas/Development/Projects/Idea/simple-idea/src/app/agent/page.tsx)**: Removed Natural Language Intent Parser section from UI, updated page subtitle, and revised proposal/rating/suggestion card descriptions to reflect the removal of AI fallbacks.
+- **[MODIFY] [env.d.ts](file:///home/anas/Development/Projects/Idea/simple-idea/env.d.ts)**: Removed type definitions for `GEMINI_API_KEY` and `GROQ_API_KEY`.
+- **[MODIFY] [.env.local](file:///home/anas/Development/Projects/Idea/simple-idea/.env.local)**: Removed local API key environment variables.
+- **[MODIFY] [llms.txt](file:///home/anas/Development/Projects/Idea/simple-idea/public/llms.txt)**: Rewrote markdown overview to specify zero server-side AI reasoning and document the updated action payload schema.
+- **[MODIFY] [README.md](file:///home/anas/Development/Projects/Idea/simple-idea/README.md)**: Updated API documentation to detail the structured `/api/agent/action` endpoint and removed all references to setup variables for `GEMINI_API_KEY` or `GROQ_API_KEY`.
+

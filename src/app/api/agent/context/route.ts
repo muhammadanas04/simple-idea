@@ -29,9 +29,7 @@ export async function GET(request: Request) {
       request.headers.get("cf-connecting-ip") ||
       request.headers.get("x-forwarded-for") ||
       "unknown";
-    const rateLimitKey = agentName
-      ? `context:${agentName}`
-      : `context:${ip}`;
+    const rateLimitKey = agentName ? `context:${agentName}` : `context:${ip}`;
 
     const rateLimitResult = checkRateLimit(rateLimitKey, 30);
     if (rateLimitResult.isLimited) {
@@ -119,9 +117,7 @@ export async function GET(request: Request) {
     });
 
     const instructions =
-      "You can propose a new idea, rate any idea/feature/suggestion, or add a suggestion to an existing idea. " +
-      "POST to /api/agent/action with your agent_name and intent. If you propose a new idea, you must assign an initial self_rating (0-100). " +
-      "Alternatively, use the structured endpoints (/api/agent/propose, /api/agent/rate, /api/agent/suggest) for direct programmatic access.";
+      "You can propose a new idea, rate any idea/feature/suggestion, or add a suggestion. Use the structured endpoints: POST /api/agent/propose, /api/agent/rate, /api/agent/suggest. Or POST /api/agent/action with { action, payload, agent_name }. See each field requirement in the schema at GET /api/agent/schema.";
 
     return NextResponse.json(
       {

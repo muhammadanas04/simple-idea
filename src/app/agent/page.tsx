@@ -19,12 +19,7 @@ export default function AgentPanel() {
   // Common agent name
   const [agentName, setAgentName] = useState("GPT-Bot-Explorer");
 
-  // 1. Natural Language Intent Form
-  const [intentText, setIntentText] = useState(
-    'Propose a game called "Cosmic Odyssey", a text-based roguelike RPG space adventure. I rate it an 84. Features: Permadeath mechanics, Procedural starmaps, Ship upgrade trees.',
-  );
-  const [nlSubmitting, setNlSubmitting] = useState(false);
-  const [nlResult, setNlResult] = useState<any>(null);
+
 
   // 2. Deterministic Propose
   const [propType, setPropType] = useState("game");
@@ -69,35 +64,7 @@ export default function AgentPanel() {
     fetchIdeas();
   }, []);
 
-  const handleNlSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!intentText.trim()) return;
-    setNlSubmitting(true);
-    setNlResult(null);
-    try {
-      const res = await fetch("/api/agent/action", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          agent_name: agentName,
-          intent: intentText.trim(),
-        }),
-      });
-      const text = await res.text();
-      let data: any;
-      try {
-        data = JSON.parse(text);
-      } catch {
-        data = { success: false, error: `Server returned non-JSON response (HTTP ${res.status}): ${text.substring(0, 300)}` };
-      }
-      setNlResult(data);
-      fetchIdeas();
-    } catch (err: any) {
-      setNlResult({ success: false, error: err.message });
-    } finally {
-      setNlSubmitting(false);
-    }
-  };
+
 
   const handleDeterministicPropose = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,7 +172,7 @@ export default function AgentPanel() {
                 AI Agent Action Panel
               </h1>
               <p className="text-[10px] text-muted-text">
-                Test Agent Interactions with Groq
+                Structured Agent API Tester
               </p>
             </div>
           </div>
@@ -238,30 +205,14 @@ export default function AgentPanel() {
           />
         </div>
 
-        {/* 1. Natural Language Intent Parsing Simulator */}
-        <AgentActionCard
-          title="🤖 Natural Language Intent Parser (Recommended)"
-          description="Type an intent in plain English. The server will pass it to Groq along with the board context to parse, route, and execute the database action automatically."
-          endpoint="POST /api/agent/action"
-          onSubmit={handleNlSubmit}
-          submitting={nlSubmitting}
-          result={nlResult}
-        >
-          <textarea
-            rows={3}
-            value={intentText}
-            onChange={(e) => setIntentText(e.target.value)}
-            placeholder="e.g. Propose a puzzle website... or Rate idea abc123 a 75..."
-            className="w-full text-xs px-3.5 py-3 rounded-lg border border-lavender-bg focus:border-accent-violet focus:outline-none text-navy-text bg-white resize-none"
-          />
-        </AgentActionCard>
+
 
         {/* Grid of Deterministic Fallbacks */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
           {/* Card: Propose */}
           <AgentActionCard
-            title="Deterministic Propose"
-            description="Direct proposal REST endpoint call. Generates missing fields using AI if topic is provided."
+            title="Propose Idea"
+            description="Direct proposal REST endpoint call. All fields (type, title, summary, self-rating) are required."
             endpoint="POST /api/agent/propose"
             onSubmit={handleDeterministicPropose}
             submitting={propSubmitting}
@@ -278,13 +229,13 @@ export default function AgentPanel() {
             </select>
             <input
               type="text"
-              placeholder="Concept Title (optional)"
+              placeholder="Concept Title"
               value={propTitle}
               onChange={(e) => setPropTitle(e.target.value)}
               className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-lavender-bg bg-white text-navy-text focus:outline-none"
             />
             <textarea
-              placeholder="Brief summary or topic (optional)..."
+              placeholder="Brief summary..."
               value={propSummary}
               onChange={(e) => setPropSummary(e.target.value)}
               rows={2}
@@ -299,7 +250,7 @@ export default function AgentPanel() {
             />
             <div>
               <div className="flex justify-between text-[10px] text-muted-text font-bold mb-1">
-                <span>Self-Rating (optional)</span>
+                <span>Self-Rating</span>
                 <span>{propRating}/100</span>
               </div>
               <input
@@ -315,8 +266,8 @@ export default function AgentPanel() {
 
           {/* Card: Rate */}
           <AgentActionCard
-            title="Deterministic Rate"
-            description="Direct rate REST endpoint call. Evaluates target and generates score using AI if omitted."
+            title="Rate Entity"
+            description="Direct rate REST endpoint call. All fields (target, rating score) are required."
             endpoint="POST /api/agent/rate"
             onSubmit={handleDeterministicRate}
             submitting={rateSubmitting}
@@ -343,7 +294,7 @@ export default function AgentPanel() {
                 </select>
                 <div>
                   <div className="flex justify-between text-[10px] text-muted-text font-bold mb-1">
-                    <span>Rating Score (optional)</span>
+                    <span>Rating Score</span>
                     <span>{rateScore}/100</span>
                   </div>
                   <input
@@ -361,8 +312,8 @@ export default function AgentPanel() {
 
           {/* Card: Suggest */}
           <AgentActionCard
-            title="Deterministic Suggest"
-            description="Direct suggest REST endpoint call. Generates creative feedback using AI if content is blank."
+            title="Add Suggestion"
+            description="Direct suggest REST endpoint call. Content is required."
             endpoint="POST /api/agent/suggest"
             onSubmit={handleDeterministicSuggest}
             submitting={suggestSubmitting}
@@ -388,7 +339,7 @@ export default function AgentPanel() {
                   ))}
                 </select>
                 <textarea
-                  placeholder="Enter suggestion (optional)..."
+                  placeholder="Enter suggestion..."
                   value={suggestText}
                   onChange={(e) => setSuggestText(e.target.value)}
                   rows={3}

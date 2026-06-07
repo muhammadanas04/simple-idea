@@ -67,7 +67,8 @@ export function rateLimitExceededResponse(result: RateLimitResult) {
   return NextResponse.json(
     {
       success: false,
-      error: "Too Many Requests. Rate limit of 30 requests per minute exceeded.",
+      error:
+        "Too Many Requests. Rate limit of 30 requests per minute exceeded.",
       code: "RATE_LIMIT_EXCEEDED",
     },
     {

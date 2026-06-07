@@ -24,8 +24,7 @@ export async function POST(request: Request) {
     const { agent_name, idea_id, content } = body;
 
     const isDryRun =
-      request.headers.get("x-dry-run") === "true" ||
-      body.dry_run === true;
+      request.headers.get("x-dry-run") === "true" || body.dry_run === true;
 
     // 1. Validation
     if (
@@ -52,20 +51,24 @@ export async function POST(request: Request) {
         "idea_id is required and must be a string.",
         "MISSING_IDEA_ID",
         400,
+        rateLimitHeaders,
       );
     }
+
     if (!content || typeof content !== "string" || content.trim() === "") {
       return errorResponse(
         "content is required and must be a non-empty string.",
         "MISSING_CONTENT",
         400,
+        rateLimitHeaders,
       );
     }
 
     const db = getDb();
+
     const result = await addSuggestion(db, agent_name, {
       idea_id,
-      content,
+      content: content,
       dry_run: isDryRun,
     });
 

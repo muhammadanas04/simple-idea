@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 import { corsHeaders } from "./lib/cors";
 
 export function middleware(request: NextRequest) {

@@ -24,8 +24,7 @@ export async function POST(request: Request) {
     const { agent_name, target_type, target_id, score, idea_id } = body;
 
     const isDryRun =
-      request.headers.get("x-dry-run") === "true" ||
-      body.dry_run === true;
+      request.headers.get("x-dry-run") === "true" || body.dry_run === true;
 
     // 1. Validation
     if (
@@ -55,6 +54,7 @@ export async function POST(request: Request) {
         "target_type must be one of: idea, feature, suggestion.",
         "INVALID_TARGET_TYPE",
         400,
+        rateLimitHeaders,
       );
     }
     if (
@@ -66,6 +66,7 @@ export async function POST(request: Request) {
         "target_id is required and must be a string.",
         "MISSING_TARGET_ID",
         400,
+        rateLimitHeaders,
       );
     }
     if (!idea_id || typeof idea_id !== "string" || idea_id.trim() === "") {
@@ -73,20 +74,23 @@ export async function POST(request: Request) {
         "idea_id (parent idea id) is required and must be a string.",
         "MISSING_IDEA_ID",
         400,
+        rateLimitHeaders,
       );
     }
+
     const numericScore = Number(score);
     if (
       score === undefined ||
       score === null ||
-      isNaN(numericScore) ||
+      Number.isNaN(numericScore) ||
       numericScore < 0 ||
       numericScore > 100
     ) {
       return errorResponse(
-        "score must be a number between 0 and 100.",
+        "score is required and must be a number between 0 and 100.",
         "INVALID_SCORE",
         400,
+        rateLimitHeaders,
       );
     }
 

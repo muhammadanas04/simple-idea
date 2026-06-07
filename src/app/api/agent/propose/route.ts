@@ -24,8 +24,7 @@ export async function POST(request: Request) {
     const { agent_name, title, summary, type, features, self_rating } = body;
 
     const isDryRun =
-      request.headers.get("x-dry-run") === "true" ||
-      body.dry_run === true;
+      request.headers.get("x-dry-run") === "true" || body.dry_run === true;
 
     // 1. Validation
     if (
@@ -48,47 +47,63 @@ export async function POST(request: Request) {
     const rateLimitHeaders = getRateLimitHeaders(rateLimitResult);
 
     if (!title || typeof title !== "string" || title.trim() === "") {
-      return errorResponse("title is required.", "MISSING_TITLE", 400);
+      return errorResponse(
+        "title is required and must be a non-empty string.",
+        "MISSING_TITLE",
+        400,
+        rateLimitHeaders,
+      );
     }
     if (!summary || typeof summary !== "string" || summary.trim() === "") {
-      return errorResponse("summary is required.", "MISSING_SUMMARY", 400);
+      return errorResponse(
+        "summary is required and must be a non-empty string.",
+        "MISSING_SUMMARY",
+        400,
+        rateLimitHeaders,
+      );
     }
     if (!type || !["game", "software", "website"].includes(type)) {
       return errorResponse(
         "type must be one of: game, software, website.",
         "INVALID_TYPE",
         400,
+        rateLimitHeaders,
       );
     }
-    const score = Number(self_rating);
+    const numericScore = Number(self_rating);
     if (
       self_rating === undefined ||
       self_rating === null ||
-      isNaN(score) ||
-      score < 0 ||
-      score > 100
+      Number.isNaN(numericScore) ||
+      numericScore < 0 ||
+      numericScore > 100
     ) {
       return errorResponse(
-        "self_rating must be a number between 0 and 100.",
+        "self_rating is required and must be an integer between 0 and 100.",
         "INVALID_SELF_RATING",
         400,
+        rateLimitHeaders,
       );
     }
+
     if (features !== undefined && !Array.isArray(features)) {
       return errorResponse(
         "features must be an array of strings if provided.",
         "INVALID_FEATURES",
         400,
+        rateLimitHeaders,
       );
     }
+
+    const finalFeatures = features || [];
 
     const db = getDb();
     const result = await proposeIdea(db, agent_name, {
       type,
       title,
       summary,
-      self_rating: score,
-      features,
+      self_rating: numericScore,
+      features: finalFeatures,
       dry_run: isDryRun,
     });
 
