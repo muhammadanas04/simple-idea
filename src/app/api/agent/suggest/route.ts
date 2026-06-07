@@ -1,11 +1,21 @@
-import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { getDb } from "@/db";
-import { ideas } from "@/db/schema";
 import { addSuggestion } from "@/lib/actions";
-import { callGroq } from "@/lib/groq";
+import { corsHeaders, errorResponse } from "@/lib/cors";
+import {
+  checkRateLimit,
+  getRateLimitHeaders,
+  rateLimitExceededResponse,
+} from "@/lib/rateLimit";
 
 export const runtime = "edge";
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 204,
+    headers: corsHeaders,
+  });
+}
 
 export async function POST(request: Request) {
   const startTime = performance.now();
@@ -13,79 +23,68 @@ export async function POST(request: Request) {
     const body: any = await request.json();
     const { agent_name, idea_id, content } = body;
 
+    // 1. Validation
     if (
       !agent_name ||
       typeof agent_name !== "string" ||
       agent_name.trim() === ""
     ) {
-      return NextResponse.json(
-        { success: false, error: "agent_name is required." },
-        { status: 400 },
+      return errorResponse(
+        "agent_name is required.",
+        "MISSING_AGENT_NAME",
+        400,
       );
     }
-    if (!idea_id) {
-      return NextResponse.json(
-        { success: false, error: "idea_id is required." },
-        { status: 400 },
+
+    // Rate Limiting
+    const rateLimitResult = checkRateLimit(`suggest:${agent_name}`, 30);
+    if (rateLimitResult.isLimited) {
+      return rateLimitExceededResponse(rateLimitResult);
+    }
+    const rateLimitHeaders = getRateLimitHeaders(rateLimitResult);
+
+    if (!idea_id || typeof idea_id !== "string" || idea_id.trim() === "") {
+      return errorResponse(
+        "idea_id is required and must be a string.",
+        "MISSING_IDEA_ID",
+        400,
+      );
+    }
+    if (!content || typeof content !== "string" || content.trim() === "") {
+      return errorResponse(
+        "content is required and must be a non-empty string.",
+        "MISSING_CONTENT",
+        400,
       );
     }
 
     const db = getDb();
-    let resolvedContent = content;
-
-    // Fallback to Groq if content is missing
-    if (
-      !resolvedContent ||
-      typeof resolvedContent !== "string" ||
-      resolvedContent.trim() === ""
-    ) {
-      const idea = await db
-        .select()
-        .from(ideas)
-        .where(eq(ideas.id, idea_id))
-        .get();
-      if (!idea) {
-        return NextResponse.json(
-          { success: false, error: "Parent idea not found." },
-          { status: 404 },
-        );
-      }
-
-      const prompt = `
-An AI agent named "${agent_name}" wants to add a suggestion to the following concept:
-Title: ${idea.title}
-Type: ${idea.type}
-Summary: ${idea.summary}
-
-Provide a creative, realistic suggestion or feature improvement that would make this concept better.
-Return a JSON object ONLY:
-{
-  "content": string
-}
-`;
-      const generated = await callGroq(prompt);
-      resolvedContent = generated.content;
-      if (!resolvedContent) {
-        throw new Error("Failed to generate suggestion content.");
-      }
-    }
-
     const result = await addSuggestion(db, agent_name, {
       idea_id,
-      content: resolvedContent,
+      content,
     });
 
     const endTime = performance.now();
-    return NextResponse.json({
-      success: true,
-      action_taken: "suggest",
-      result,
-      ms_taken: Math.round(endTime - startTime),
-    });
-  } catch (error: any) {
     return NextResponse.json(
-      { success: false, error: error.message || "Suggestion failed" },
-      { status: 500 },
+      {
+        success: true,
+        suggestion_id: result.id,
+        result,
+        ms_taken: Math.round(endTime - startTime),
+      },
+      {
+        status: 201,
+        headers: {
+          ...corsHeaders,
+          ...rateLimitHeaders,
+        },
+      },
+    );
+  } catch (error: any) {
+    return errorResponse(
+      error.message || "Failed to add suggestion",
+      "SUGGEST_FAILED",
+      500,
     );
   }
 }
