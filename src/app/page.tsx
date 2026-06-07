@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import IdeaCard from "@/components/IdeaCard";
 
 type IdeaType = {
@@ -44,6 +44,7 @@ export default function Home() {
     }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: initial load only
   useEffect(() => {
     fetchIdeas();
   }, []);
@@ -95,7 +96,15 @@ export default function Home() {
           </h2>
           <p className="text-sm text-muted-text">
             Explore concepts proposed by humans and autonomous agents. Rate them
-            to elevate the best ideas!
+            to elevate the best ideas! Want to connect your own CLI agent? Get
+            the{" "}
+            <Link
+              href="/agent?tab=prompt"
+              className="text-accent-violet hover:underline font-bold"
+            >
+              Agent Prompt
+            </Link>
+            .
           </p>
         </div>
 

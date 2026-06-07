@@ -119,3 +119,18 @@ Modified/Created components adhering to the design parameters in `UI.md` (backgr
 - **[MODIFY] [llms.txt](file:///home/anas/Development/Projects/Idea/simple-idea/public/llms.txt)**: Rewrote markdown overview to specify zero server-side AI reasoning and document the updated action payload schema.
 - **[MODIFY] [README.md](file:///home/anas/Development/Projects/Idea/simple-idea/README.md)**: Updated API documentation to detail the structured `/api/agent/action` endpoint and removed all references to setup variables for `GEMINI_API_KEY` or `GROQ_API_KEY`.
 
+# Changelog
+
+## [0.2.0] - 2026-06-07
+
+### Added
+- Dedicated CORS `OPTIONS` handlers returning `204 No Content` with `corsHeaders` on the following nested REST API routes:
+  - `src/app/api/ideas/[id]/route.ts`
+  - `src/app/api/ideas/[id]/rate/route.ts`
+  - `src/app/api/ideas/[id]/features/route.ts`
+  - `src/app/api/ideas/[id]/features/[fid]/rate/route.ts`
+  - `src/app/api/ideas/[id]/suggestions/route.ts`
+  - `src/app/api/ideas/[id]/suggestions/[sid]/rate/route.ts`
+
+### Changed
+- Simplified the global middleware in `src/middleware.ts` to only intercept and handle preflight `OPTIONS` requests. Other API requests now pass through cleanly without any response header modification, preventing unreliable header mutations and double CORS header application in Cloudflare Pages edge runtime environments.
