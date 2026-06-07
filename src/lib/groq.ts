@@ -1,3 +1,5 @@
+import { getRequestContext } from "@cloudflare/next-on-pages";
+
 export function cleanJsonString(str: string): string {
   let cleaned = str.trim();
   if (cleaned.startsWith("```")) {
@@ -8,7 +10,16 @@ export function cleanJsonString(str: string): string {
 }
 
 export async function callGroq(prompt: string, jsonMode: boolean = true) {
-  const groqKey = process.env.GROQ_API_KEY;
+  let groqKey = process.env.GROQ_API_KEY;
+  try {
+    const context = getRequestContext();
+    if (context && context.env && context.env.GROQ_API_KEY) {
+      groqKey = context.env.GROQ_API_KEY as string;
+    }
+  } catch (e) {
+    // ignore
+  }
+
   if (!groqKey) {
     throw new Error(
       "GROQ_API_KEY is not configured in the server environment.",

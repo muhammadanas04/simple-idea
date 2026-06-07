@@ -15,17 +15,6 @@ export const runtime = "edge";
 export async function POST(request: Request) {
   const startTime = performance.now();
   try {
-    const groqKey = process.env.GROQ_API_KEY;
-    if (!groqKey) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "GROQ_API_KEY is not configured in the server environment.",
-        },
-        { status: 500 },
-      );
-    }
-
     const body: any = await request.json();
     const { agent_name, intent, idea_id } = body;
 
