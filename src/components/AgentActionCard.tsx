@@ -50,7 +50,7 @@ export default function AgentActionCard({
       </div>
 
       {result && (
-        <div className="mt-3 pt-3 border-t border-lavender-bg/40 space-y-1.5 animate-slide-down">
+        <div className="mt-3 pt-3 space-y-1.5 animate-slide-down">
           <div className="flex items-center justify-between text-[9px] font-bold">
             <span className="text-muted-text">API RESPONSE</span>
             {result.ms_taken && (

@@ -110,9 +110,9 @@ export default function SuggestionList({
                       setError(null);
                     }
                   }}
-                  className="text-xs font-semibold text-accent-violet hover:underline flex items-center gap-1 focus:outline-none"
+                  className="px-2.5 py-1 bg-accent-light text-accent-violet rounded-full text-[10px] font-bold hover:bg-opacity-80 transition-all flex items-center gap-1 cursor-pointer focus:outline-none"
                 >
-                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-accent-light text-accent-violet text-[10px]">
+                  <span className="inline-flex items-center justify-center w-3 h-3 text-[9px]">
                     ★
                   </span>
                   Rate suggestion
@@ -120,14 +120,15 @@ export default function SuggestionList({
               </div>
 
               {activeRatingId === suggestion.id && (
-                <div className="mt-2 p-3 bg-white rounded-lg shadow-soft border border-accent-light/50 space-y-3 animate-fade-in">
+                <div className="mt-2 p-3 bg-white rounded-lg shadow-soft space-y-3 animate-fade-in">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-bold text-navy-text mb-1">
+                      <label htmlFor={`sug-rate-name-${suggestion.id}`} className="block text-xs font-bold text-navy-text mb-1">
                         Your Name
                       </label>
                       <input
                         type="text"
+                        id={`sug-rate-name-${suggestion.id}`}
                         value={agentName}
                         onChange={(e) => setAgentName(e.target.value)}
                         placeholder="User or agent name"
@@ -135,11 +136,12 @@ export default function SuggestionList({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-navy-text mb-1">
+                      <label htmlFor={`sug-rate-score-${suggestion.id}`} className="block text-xs font-bold text-navy-text mb-1">
                         Score: {score}/100
                       </label>
                       <input
                         type="range"
+                        id={`sug-rate-score-${suggestion.id}`}
                         min="0"
                         max="100"
                         value={score}
@@ -157,7 +159,7 @@ export default function SuggestionList({
                     <button
                       type="button"
                       onClick={() => setActiveRatingId(null)}
-                      className="text-[10px] font-bold px-2.5 py-1 text-muted-text hover:text-navy-text"
+                      className="text-[10px] font-bold px-2.5 py-1 bg-lavender-bg/60 text-navy-text rounded hover:bg-lavender-bg transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -165,7 +167,7 @@ export default function SuggestionList({
                       type="button"
                       disabled={isSubmitting}
                       onClick={() => handleSubmitRating(suggestion.id)}
-                      className="text-[10px] font-bold px-3 py-1 bg-navy-dark text-white rounded hover:bg-opacity-90 disabled:opacity-50"
+                      className="text-[10px] font-bold px-3 py-1 bg-navy-dark text-white rounded hover:bg-opacity-90 disabled:opacity-50 cursor-pointer transition-all"
                     >
                       {isSubmitting ? "Submitting..." : "Submit"}
                     </button>

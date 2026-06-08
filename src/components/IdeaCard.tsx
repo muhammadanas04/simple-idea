@@ -278,7 +278,7 @@ export default function IdeaCard({
       </div>
 
       {/* Expand/Collapse Trigger */}
-      <div className="flex justify-center border-t border-lavender-bg/40 pt-2">
+      <div className="flex justify-center pt-2">
         <button
           type="button"
           onClick={() => setIsExpanded(!isExpanded)}
@@ -290,7 +290,7 @@ export default function IdeaCard({
 
       {/* Expanded Accordion Details */}
       {isExpanded && (
-        <div className="pt-2 space-y-6 animate-fade-in border-t border-lavender-bg/30">
+        <div className="pt-2 space-y-6 animate-fade-in">
           {loading && (
             <div className="flex items-center justify-center py-8">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent-violet"></div>
@@ -314,7 +314,7 @@ export default function IdeaCard({
               </div>
 
               {/* Action Buttons Row */}
-              <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-lavender-bg/30">
+              <div className="flex flex-wrap items-center gap-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
@@ -335,7 +335,7 @@ export default function IdeaCard({
                     setShowSuggestionForm(false);
                     setFormError(null);
                   }}
-                  className="px-3.5 py-1.5 bg-accent-violet text-white rounded-lg text-xs font-bold hover:bg-opacity-95 flex items-center gap-1 cursor-pointer transition-all"
+                  className="px-3.5 py-1.5 bg-navy-dark text-white rounded-lg text-xs font-bold hover:bg-opacity-95 flex items-center gap-1 cursor-pointer transition-all"
                 >
                   Add feature
                 </button>
@@ -347,7 +347,7 @@ export default function IdeaCard({
                     setShowFeatureForm(false);
                     setFormError(null);
                   }}
-                  className="px-3.5 py-1.5 bg-accent-violet text-white rounded-lg text-xs font-bold hover:bg-opacity-95 flex items-center gap-1 cursor-pointer transition-all"
+                  className="px-3.5 py-1.5 bg-navy-dark text-white rounded-lg text-xs font-bold hover:bg-opacity-95 flex items-center gap-1 cursor-pointer transition-all"
                 >
                   Add suggestion
                 </button>
@@ -364,11 +364,12 @@ export default function IdeaCard({
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-navy-text mb-1">
+                      <label htmlFor={`rate-name-${id}`} className="block text-xs font-bold text-navy-text mb-1">
                         Your Name
                       </label>
                       <input
                         type="text"
+                        id={`rate-name-${id}`}
                         value={raterName}
                         onChange={(e) => setRaterName(e.target.value)}
                         placeholder="e.g. Agent-01"
@@ -376,11 +377,12 @@ export default function IdeaCard({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-navy-text mb-1">
+                      <label htmlFor={`rate-score-${id}`} className="block text-xs font-bold text-navy-text mb-1">
                         Rating: {rateScore}/100
                       </label>
                       <input
                         type="range"
+                        id={`rate-score-${id}`}
                         min="0"
                         max="100"
                         value={rateScore}
@@ -398,14 +400,14 @@ export default function IdeaCard({
                     <button
                       type="button"
                       onClick={() => setShowRateForm(false)}
-                      className="px-3 py-1.5 text-xs font-bold text-muted-text"
+                      className="px-3.5 py-1.5 bg-lavender-bg/60 text-navy-text rounded-lg text-xs font-bold hover:bg-lavender-bg transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={formSubmitting}
-                      className="px-4 py-1.5 bg-navy-dark text-white rounded-lg text-xs font-bold hover:bg-opacity-90 disabled:opacity-50"
+                      className="px-4 py-1.5 bg-navy-dark text-white rounded-lg text-xs font-bold hover:bg-opacity-90 disabled:opacity-50 cursor-pointer"
                     >
                       {formSubmitting ? "Submitting..." : "Submit Rating"}
                     </button>
@@ -423,11 +425,12 @@ export default function IdeaCard({
                   </h4>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-bold text-navy-text mb-1">
+                      <label htmlFor={`feature-name-${id}`} className="block text-xs font-bold text-navy-text mb-1">
                         Your Name
                       </label>
                       <input
                         type="text"
+                        id={`feature-name-${id}`}
                         value={featureName}
                         onChange={(e) => setFeatureName(e.target.value)}
                         placeholder="e.g. Creator-Agent"
@@ -435,11 +438,12 @@ export default function IdeaCard({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-navy-text mb-1">
+                      <label htmlFor={`feature-desc-${id}`} className="block text-xs font-bold text-navy-text mb-1">
                         Feature Description
                       </label>
                       <input
                         type="text"
+                        id={`feature-desc-${id}`}
                         value={featureDesc}
                         onChange={(e) => setFeatureDesc(e.target.value)}
                         placeholder="Describe one concrete feature..."
@@ -456,14 +460,14 @@ export default function IdeaCard({
                     <button
                       type="button"
                       onClick={() => setShowFeatureForm(false)}
-                      className="px-3 py-1.5 text-xs font-bold text-muted-text"
+                      className="px-3.5 py-1.5 bg-lavender-bg/60 text-navy-text rounded-lg text-xs font-bold hover:bg-lavender-bg transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={formSubmitting}
-                      className="px-4 py-1.5 bg-navy-dark text-white rounded-lg text-xs font-bold hover:bg-opacity-90 disabled:opacity-50"
+                      className="px-4 py-1.5 bg-navy-dark text-white rounded-lg text-xs font-bold hover:bg-opacity-90 disabled:opacity-50 cursor-pointer"
                     >
                       {formSubmitting ? "Adding..." : "Add Feature"}
                     </button>
@@ -481,11 +485,12 @@ export default function IdeaCard({
                   </h4>
                   <div className="space-y-3">
                     <div>
-                      <label className="block text-xs font-bold text-navy-text mb-1">
+                      <label htmlFor={`suggest-name-${id}`} className="block text-xs font-bold text-navy-text mb-1">
                         Your Name
                       </label>
                       <input
                         type="text"
+                        id={`suggest-name-${id}`}
                         value={suggestionName}
                         onChange={(e) => setSuggestionName(e.target.value)}
                         placeholder="e.g. Reviewer-Bot"
@@ -493,10 +498,11 @@ export default function IdeaCard({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-navy-text mb-1">
+                      <label htmlFor={`suggest-text-${id}`} className="block text-xs font-bold text-navy-text mb-1">
                         Suggestion Content
                       </label>
                       <textarea
+                        id={`suggest-text-${id}`}
                         value={suggestionText}
                         onChange={(e) => setSuggestionText(e.target.value)}
                         placeholder="Add suggestions, improvements, or design notes..."
@@ -514,14 +520,14 @@ export default function IdeaCard({
                     <button
                       type="button"
                       onClick={() => setShowSuggestionForm(false)}
-                      className="px-3 py-1.5 text-xs font-bold text-muted-text"
+                      className="px-3.5 py-1.5 bg-lavender-bg/60 text-navy-text rounded-lg text-xs font-bold hover:bg-lavender-bg transition-all cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={formSubmitting}
-                      className="px-4 py-1.5 bg-navy-dark text-white rounded-lg text-xs font-bold hover:bg-opacity-90 disabled:opacity-50"
+                      className="px-4 py-1.5 bg-navy-dark text-white rounded-lg text-xs font-bold hover:bg-opacity-90 disabled:opacity-50 cursor-pointer"
                     >
                       {formSubmitting ? "Submitting..." : "Submit Suggestion"}
                     </button>

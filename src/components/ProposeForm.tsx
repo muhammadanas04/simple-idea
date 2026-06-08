@@ -115,11 +115,12 @@ export default function ProposeForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Title */}
         <div className="space-y-1">
-          <label className="block text-xs font-bold text-navy-text uppercase tracking-wider">
+          <label htmlFor="prop-title" className="block text-xs font-bold text-navy-text uppercase tracking-wider">
             Concept Title
           </label>
           <input
             type="text"
+            id="prop-title"
             required
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -130,10 +131,11 @@ export default function ProposeForm({
 
         {/* Type */}
         <div className="space-y-1">
-          <label className="block text-xs font-bold text-navy-text uppercase tracking-wider">
+          <label htmlFor="prop-type" className="block text-xs font-bold text-navy-text uppercase tracking-wider">
             Idea Type
           </label>
           <select
+            id="prop-type"
             value={type}
             onChange={(e) => setType(e.target.value)}
             className="w-full text-sm px-3.5 py-2.5 rounded-lg border border-lavender-bg focus:border-accent-violet focus:outline-none text-navy-text bg-white"
@@ -147,10 +149,11 @@ export default function ProposeForm({
 
       {/* Summary */}
       <div className="space-y-1">
-        <label className="block text-xs font-bold text-navy-text uppercase tracking-wider">
+        <label htmlFor="prop-summary" className="block text-xs font-bold text-navy-text uppercase tracking-wider">
           Summary / Pitch
         </label>
         <textarea
+          id="prop-summary"
           required
           rows={3}
           value={summary}
@@ -163,11 +166,12 @@ export default function ProposeForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Proposed By */}
         <div className="space-y-1">
-          <label className="block text-xs font-bold text-navy-text uppercase tracking-wider">
+          <label htmlFor="prop-by" className="block text-xs font-bold text-navy-text uppercase tracking-wider">
             Proposer Name / Handle
           </label>
           <input
             type="text"
+            id="prop-by"
             required
             value={proposedBy}
             onChange={(e) => setProposedBy(e.target.value)}
@@ -179,7 +183,7 @@ export default function ProposeForm({
         {/* Self-Rating */}
         <div className="space-y-1">
           <div className="flex justify-between items-center">
-            <label className="block text-xs font-bold text-navy-text uppercase tracking-wider">
+            <label htmlFor="prop-self-rating" className="block text-xs font-bold text-navy-text uppercase tracking-wider">
               Self-Rating
             </label>
             <span className="text-sm font-extrabold text-accent-violet">
@@ -188,6 +192,7 @@ export default function ProposeForm({
           </div>
           <input
             type="range"
+            id="prop-self-rating"
             min="0"
             max="100"
             value={selfRating}
@@ -200,13 +205,13 @@ export default function ProposeForm({
       {/* Features List */}
       <div className="space-y-3">
         <div className="flex justify-between items-center">
-          <label className="block text-xs font-bold text-navy-text uppercase tracking-wider">
+          <label htmlFor="prop-feature-0" className="block text-xs font-bold text-navy-text uppercase tracking-wider">
             Initial Features (Optional)
           </label>
           <button
             type="button"
             onClick={handleAddFeatureRow}
-            className="text-xs font-bold text-accent-violet hover:underline flex items-center gap-1 focus:outline-none"
+            className="px-2.5 py-1 bg-accent-light text-accent-violet rounded-full text-xs font-bold hover:bg-opacity-80 transition-all flex items-center gap-1 focus:outline-none cursor-pointer"
           >
             + Add Feature Row
           </button>
@@ -217,6 +222,7 @@ export default function ProposeForm({
             <li key={index} className="flex gap-2">
               <input
                 type="text"
+                id={`prop-feature-${index}`}
                 value={feature}
                 onChange={(e) => handleFeatureChange(index, e.target.value)}
                 placeholder={`Feature #${index + 1}`}
@@ -225,7 +231,7 @@ export default function ProposeForm({
               <button
                 type="button"
                 onClick={() => handleRemoveFeatureRow(index)}
-                className="px-2 py-1 text-xs font-semibold text-red-500 hover:text-red-700 bg-red-50 rounded-lg focus:outline-none"
+                className="px-2 py-1 text-xs font-semibold text-red-500 hover:text-red-700 bg-red-50 rounded-lg focus:outline-none cursor-pointer"
               >
                 ✕
               </button>
@@ -235,11 +241,11 @@ export default function ProposeForm({
       </div>
 
       {/* Buttons */}
-      <div className="flex justify-end gap-3 pt-4 border-t border-lavender-bg/40">
+      <div className="flex justify-end gap-3 pt-4">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-sm font-bold text-muted-text hover:text-navy-text cursor-pointer transition-all"
+          className="px-5 py-2 bg-lavender-bg text-navy-text rounded-lg text-sm font-bold hover:bg-lavender-bg/85 cursor-pointer transition-all"
         >
           Cancel
         </button>
